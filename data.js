@@ -27,11 +27,12 @@ window.HQ = {
   ],
   repTotals: {today:18,wtd:44,mtd:44},
   // Crews from "Crew Forecast" tab (heads = names on the roster tab). start/end are Nov 2026 knock windows.
+  // spots = roster capacity where the sheet states it (Crew Forecast notes: Johannes '16 spots/13 named', Pabu '12 of 16 named').
   crews: [
     {leader:"Trevis", tab:"Trevis Nov 1-12", location:null, window:"Nov 3–12", start:"2026-11-03", end:"2026-11-12", heads:9, knockDays:9, repDays:77, forecast:155},
     {leader:"Jake Toth + Jaleel", tab:"Jake Toth + Jaleel NOV 8-22", location:"Dothan / Enterprise, AL", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:9, knockDays:12, repDays:108, forecast:217},
-    {leader:"Johannes", tab:"Johannes NOV 8-22", location:"Kinston / Ayden / New Bern, NC", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:13, knockDays:12, repDays:156, forecast:314},
-    {leader:"Pabu", tab:"Pabu NOV 8-22", location:"Hinesville, GA", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:12, knockDays:12, repDays:144, forecast:290},
+    {leader:"Johannes", tab:"Johannes NOV 8-22", location:"Kinston / Ayden / New Bern, NC", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:13, spots:16, knockDays:12, repDays:156, forecast:314},
+    {leader:"Pabu", tab:"Pabu NOV 8-22", location:"Hinesville, GA", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:12, spots:16, knockDays:12, repDays:144, forecast:290},
     {leader:"Charly", tab:"Charly NOV 8-22", location:"Franklin / Whiteland / Fishers / Ingalls, IN", window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:6, knockDays:12, repDays:72, forecast:145},
     {leader:"Mason & JJ", tab:"Mason&JJ Nov. 8-22", location:null, window:"Nov 8–22", start:"2026-11-08", end:"2026-11-22", heads:9, knockDays:12, repDays:108, forecast:217},
     {leader:"Devin G", tab:"Devin G Nov 15-25th", location:null, window:"Nov 15–25", start:"2026-11-15", end:"2026-11-25", heads:8, knockDays:9, repDays:72, forecast:145},
