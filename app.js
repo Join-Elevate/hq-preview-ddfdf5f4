@@ -17,7 +17,7 @@ const stc={Live:'live',Upcoming:'up',Done:''};
 const ring=(v,max,sz=60,sw=5)=>{const r=(sz-sw)/2,c=2*Math.PI*r;return `<svg viewBox="0 0 ${sz} ${sz}"><circle class="tk" cx="${sz/2}" cy="${sz/2}" r="${r}" stroke-width="${sw}" fill="none"/><circle class="ar" cx="${sz/2}" cy="${sz/2}" r="${r}" stroke-width="${sw}" fill="none" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-v/max)}"/></svg>`};
 const seg=(id,opts,cur,cls='')=>`<div class="seg ${cls}" data-seg="${id}">${opts.map(([k,l])=>`<button data-v="${k}" class="${k===cur?'on':''}">${l}</button>`).join('')}<span class="pill"></span></div>`;
 const TABS=[['week','My Week','week'],['training','Training','train'],['blitz','Blitzes','bolt'],['ranks','Ranks','rank'],['history','History','hist']];
-const ST={per:localStorage.getItem('hq-per')||'wtd',line:'fiber',q:''};
+const ST={board:'pest',per:localStorage.getItem('hq-per')||'wtd',line:'fiber',q:''};
 const PER={today:'Today',wtd:'Week',mtd:'Month'};
 
 /* counters */
@@ -33,16 +33,29 @@ const streak=()=>{let n=0;const d=new Date(T12);if(!(getLog(d).leads>=10))d.setD
 const streakCard=()=>{const s=streak();return `<div class="card pad" id="streak"><div class="streak"><span class="fl">${ic('flame')}</span><div><b>${s?`${s}-day streak`:'Start a streak'}</b><small>${s?'Days in a row hitting 10 leads (Sundays skipped)':'Hit 10 leads today to start one'}</small></div></div>
 <div class="days">${weekDays().map(d=>{const o=getLog(d);return `<div class="${dkey(d)===dkey(T12)?'td':''}"><b class="${(o.leads||0)>=10?'on':''}"></b>${d.toLocaleDateString('en-US',{weekday:'narrow'})}</div>`}).join('')}</div></div>`};
 
+const R=D.recruiting;const has=v=>v!==null&&v!==undefined;
+const recCard=()=>{const ok=R.connected&&has(R.signed)&&has(R.goal);const W='<span class="nt" style="font-size:12.5px;padding:5px 10px">Waiting on Nidus</span>';
+return `<div class="card pad glass"><div class="lab">${R.label}<span class="r">Source: ${R.source}${R.asOf?' · '+R.asOf:''}</span></div>
+${ok?`<div class="num" style="margin:14px 0 18px">${R.signed}<small>/ ${fmt(R.goal)} signed</small></div><div class="bar"><i data-w="${R.signed/R.goal*100}"></i>${has(R.paceTarget)?`<b style="left:${R.paceTarget/R.goal*100}%"></b>`:''}</div>`
+:`<div class="num" style="margin:14px 0 6px;font-size:40px;color:var(--dim)">— <small>recruits signed</small></div><div style="margin:4px 0 18px">${W}</div><div class="bar"></div>`}
+<div class="stats3"><div><b>${has(R.goal)?fmt(R.goal):'—'}</b><small>Season goal</small></div><div><b>${has(R.paceTarget)?R.paceTarget:'—'}</b><small>Pace target</small></div><div><b>${ok&&has(R.paceTarget)?(R.signed-R.paceTarget>=0?'+':'')+(R.signed-R.paceTarget):'—'}</b><small>vs pace</small></div></div></div>`};
+const ranksPest=()=>{const L=R.leaderboard;let body;
+if(R.connected&&Array.isArray(L)&&L.length){const S=[...L].sort((a,b)=>b.signed-a.signed);const rk=S.map(r=>1+S.findIndex(x=>x.signed===r.signed));
+body=`<div class="card">${S.map((r,i)=>`<div class="lr"><span class="rk">${rk[i]}</span><span class="av ${rk[i]<=3?'m'+rk[i]:''}">${ini(r.name)}</span><div class="tx"><b>${r.name}</b></div><span class="v">${r.signed}</span></div>`).join('')}</div>`}
+else body=`<div class="card"><div class="empty"><b>Waiting on Nidus</b>Pest recruiting signings will rank here once Nidus is connected.</div></div>`;
+return `<div class="ph2"><div class="eyebrow">Pest recruiting</div><h1 class="display">Ranks.</h1><p>Signings by leader · source: Nidus</p></div>
+<div class="wrap" style="margin-top:14px">${seg('board',[['pest','Pest recruiting'],['fiber','Fiber apps']],ST.board,'gold')}<div style="margin-top:14px">${body}</div></div>`};
 /* views */
 const V={
 week(){const behind=G.mtd-G.cumTargetAsOf;return `<section class="hero"><div class="ph"></div><div class="in"><div class="eyebrow">${NOW.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div><h1 class="display">My <em>week.</em></h1><p>Six days. Ten leads. Ten intros. Five touches.</p></div></section>
-<div class="wrap"><div class="card pad glass tapc" data-sheet="goal"><div class="lab">November fiber apps<span class="r">thru ${G.asOfDate}</span></div>
-<div class="num" style="margin:14px 0 18px" data-count="${G.mtd}">0<small>/ ${fmt(G.target)}</small></div>
+<div class="wrap">${recCard()}<div class="sec"><div class="sh"><h2>Today</h2><span>Tap to log · this device</span></div><div class="ctrs">${LOGK.map(ctr).join('')}</div></div>
+<div class="sec">${streakCard()}</div>
+<div class="sec"><div class="sh"><h2>Fiber</h2><span>Secondary · forecast sheet</span></div><div class="card pad tapc" data-sheet="goal"><div class="lab">November fiber apps<span class="r">thru ${G.asOfDate}</span></div>
+<div class="num" style="margin:12px 0 16px;font-size:40px" data-count="${G.mtd}">0<small>/ ${fmt(G.target)}</small></div>
 <div class="bar"><i data-w="${G.mtd/G.target*100}"></i><b style="left:${G.cumTargetAsOf/G.target*100}%"></b></div>
 <div class="stats3"><div><b>${G.cumTargetAsOf}</b><small>Pace target</small></div><div><b class="${behind<0?'bad':'ok'}">${behind<0?behind:'+'+behind}</b><small>vs pace</small></div><div><b>${fmt(G.target-G.mtd)}</b><small>To go</small></div></div></div>
-<div class="sec"><div class="sh"><h2>Today</h2><span>Tap to log · this device</span></div><div class="ctrs">${LOGK.map(ctr).join('')}</div></div>
-<div class="sec">${streakCard()}</div>
-<p class="foot">Apps from the November forecast sheet (as of ${D.asOf.apps}). Counters are logged on this device and reset daily. Nidus isn't connected.</p></div>`},
+</div>
+<p class="foot">Apps from the November forecast sheet (as of ${D.asOf.apps}). Recruiting baseline comes from Nidus (not connected yet). Counters are logged on this device and reset daily.</p></div>`},
 
 training(){const all=D.academy.flatMap(t=>t.modules.map(m=>t.track+'|'+m.t));const d=all.filter(k=>prog[k]).length;
 return `<div class="ph2"><div class="eyebrow">Academy</div><h1 class="display">Training.</h1><p>Tap a lesson, then mark it done. Saved on this device.</p></div>
@@ -58,11 +71,11 @@ return `<div class="ph2"><div class="eyebrow">November</div><h1 class="display">
 <div class="card" style="margin-top:14px" id="bzList">${ST.line==='pest'?`<div class="empty"><b>Not tracked yet</b>No pest blitz data is in the Elevate Fiber sheets.</div>`:L.length?L.map(bzRow).join(''):`<div class="empty"><b>No matches</b>Try another search.</div>`}</div>
 <p class="foot">${D.dropped.map(d=>`${d.leader}: ${d.note}.`).join(' ')} Rosters from the Elevate Fiber sheet (${D.asOf.crews}).</p></div>`},
 
-ranks(){const per=ST.per;const L=[...D.reps].sort((a,b)=>b[per]-a[per]||a.name.localeCompare(b.name));
+ranks(){if(ST.board==='pest')return ranksPest();const per=ST.per;const L=[...D.reps].sort((a,b)=>b[per]-a[per]||a.name.localeCompare(b.name));
 const rk=L.map((r,i)=>1+L.findIndex(x=>x[per]===r[per]));const tie=r=>rk.filter(x=>x===r).length>1;const lbl=r=>(tie(r)?'T-':'')+r;
 const med=r=>r<=3?'m'+r:'';const top=L.slice(0,3);const order=[1,0,2].filter(i=>top[i]);
 return `<div class="ph2"><div class="eyebrow">Fiber apps</div><h1 class="display">Ranks.</h1><p>As of ${D.asOf.apps} · team ${D.repTotals[per]} ${PER[per].toLowerCase()==='today'?'today':'this '+PER[per].toLowerCase()}</p></div>
-<div class="wrap" style="margin-top:14px"><div class="wkp">${['Nov 2 – 7','Oct 26 – 31','Oct 19 – 24'].map((w,i)=>`<button class="${i===0?'on':''}" ${i?'disabled':''}>${w}<small>${i?'Not tracked yet':'This week'}</small></button>`).join('')}</div>
+<div class="wrap" style="margin-top:14px">${seg('board',[['pest','Pest recruiting'],['fiber','Fiber apps']],ST.board,'gold')}<div style="height:14px"></div><div class="wkp">${['Nov 2 – 7','Oct 26 – 31','Oct 19 – 24'].map((w,i)=>`<button class="${i===0?'on':''}" ${i?'disabled':''}>${w}<small>${i?'Not tracked yet':'This week'}</small></button>`).join('')}</div>
 ${seg('per',Object.entries(PER),ST.per)}
 <div class="podium" style="margin-top:22px">${order.map(i=>{const r=top[i],R=rk[i];return `<div class="pd ${i===0?'p1':''} ${med(R)}" data-rep="${r.name}"><div class="av">${ini(r.name)}</div><div class="stand"><small>${lbl(R)}</small><b>${r[per]}</b><span>${r.name.split(' ')[0]}</span></div></div>`}).join('')}</div>
 <div class="card" style="border-radius:0 0 24px 24px;border-top:0">${L.map((r,i)=>`<div class="lr" data-rep="${r.name}"><span class="rk">${lbl(rk[i])}</span><span class="av ${med(rk[i])}">${ini(r.name)}</span><div class="tx"><b>${r.name}</b><small>${r.today} today · ${r.wtd} week · ${r.mtd} month</small></div><span class="v">${r[per]}</span></div>`).join('')}</div>

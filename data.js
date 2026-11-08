@@ -12,6 +12,16 @@
    A value of null means "not tracked yet" and is shown that way.
    ============================================================ */
 window.HQ = {
+  // RECRUITING BASELINE — source: Nidus (Hawx signing). Not connected yet, so every value is null
+  // and the site shows "Waiting on Nidus". Fill these from a Nidus export/API; do not hand-enter guesses.
+  recruiting: {
+    source: "Nidus", connected: false, asOf: null,
+    label: "Season recruiting goal",
+    signed: null,      // recruits signed this season
+    goal: null,        // season signing goal
+    paceTarget: null,  // where we should be today
+    leaderboard: null  // [{name:"", signed:0}] pest recruiting signings by leader
+  },
   asOf: { apps: "Nov 4, 11:49 PM", crews: "Nov 5 refresh" },
   goal: { label: "November Brightspeed fiber apps", target: 2000, mtd: 45, cumTargetAsOf: 47, asOfDate: "Nov 4",
     daily: [ {d:"Nov 1–2", actual:11, target:11}, {d:"Nov 3", actual:16, target:18}, {d:"Nov 4", actual:18, target:18} ],
